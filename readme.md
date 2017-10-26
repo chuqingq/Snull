@@ -30,6 +30,6 @@ no need to add in `/etc/networks`:
 ## 6. check tcp
 
     nc -l 192.168.9.9 10000
-    telnet 192.168.8.8 10000 # success
+    telnet 192.168.8.9 10000 # success
 
 
