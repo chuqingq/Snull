@@ -209,6 +209,7 @@ int snull_open(struct net_device *dev)
      * x is 0 or 1. The first byte is '\0' to avoid being a multicast
      * address (the first byte of multicast addrs is odd).
      */
+    printk(KERN_INFO "snull_open: %s\n", ((dev == snull_devs[0])?"0":"1"));
     memcpy(dev->dev_addr, "\0SNUL0", ETH_ALEN);
     if (dev == snull_devs[1])
         dev->dev_addr[ETH_ALEN-1]++; /* \0SNUL1 */
@@ -255,6 +256,7 @@ void snull_rx(struct net_device *dev, struct snull_packet *pkt)
 {
     struct sk_buff *skb;
     struct snull_priv *priv = netdev_priv(dev);
+    printk(KERN_INFO "snull_rx: %s\n", ((dev == snull_devs[0])?"0":"1"));
 
     /*
      * The packet has been retrieved from the transmission
@@ -341,6 +343,7 @@ static void snull_regular_interrupt(int irq, void *dev_id, struct pt_regs *regs)
      * Then assign "struct device *dev"
      */
     struct net_device *dev = (struct net_device *)dev_id;
+    printk(KERN_INFO "snull_regular_interrupt: %s\n", ((dev == snull_devs[0])?"0":"1"));
     /* ... and check with hw if it's really ours */
 
     /* paranoid */
@@ -460,6 +463,8 @@ static void snull_hw_tx(char *buf, int len, struct net_device *dev)
     u32 *saddr, *daddr;
     struct snull_packet *tx_buffer;
 
+    printk(KERN_INFO "snull_hw_tx: %s\n", ((dev == snull_devs[0])?"0":"1"));
+
     /* I am paranoid. Ain't I? */
     if (len < sizeof(struct ethhdr) + sizeof(struct iphdr)) {
         printk("snull: Hmm... packet too short (%i octets)\n",
@@ -482,13 +487,15 @@ static void snull_hw_tx(char *buf, int len, struct net_device *dev)
     saddr = &ih->saddr;
     daddr = &ih->daddr;
 
+    printk_ip_packet(ih, dev == snull_devs[0]);
+
     ((u8 *)saddr)[2] ^= 1; /* change the third octet (class C) */
     ((u8 *)daddr)[2] ^= 1;
 
     ih->check = 0;         /* and rebuild the checksum (ip needs it) */
     ih->check = ip_fast_csum((unsigned char *)ih,ih->ihl);
 
-    printk_ip_packet(ih, dev == snull_devs[0]);
+    // printk_ip_packet(ih, dev == snull_devs[0]);
 
     /*
      * Ok, now the packet is ready for transmission: first simulate a
@@ -529,6 +536,7 @@ int snull_tx(struct sk_buff *skb, struct net_device *dev)
     char *data, shortpkt[ETH_ZLEN];
     struct snull_priv *priv = netdev_priv(dev);
 
+    printk(KERN_INFO "snull_tx: %s\n", ((dev == snull_devs[0])?"0":"1"));
     data = skb->data;
     len = skb->len;
     if (len < ETH_ZLEN) {
@@ -675,6 +683,7 @@ static const struct net_device_ops snull_netdev_ops = {
 void snull_init(struct net_device *dev)
 {
     struct snull_priv *priv;
+    printk(KERN_INFO "snull_init\n");
 #if 0
         /*
      * Make the usual checks: check_region(), probe irq, ...  -ENODEV
@@ -707,6 +716,7 @@ void snull_init(struct net_device *dev)
     spin_lock_init(&priv->lock);
     snull_rx_ints(dev, 1);      /* enable receive interrupts */
     snull_setup_pool(dev);
+    printk(KERN_INFO "snull_init\n");
 }
 
 /*
@@ -741,6 +751,7 @@ void snull_cleanup(void)
 int snull_init_module(void)
 {
     int result, i, ret = -ENOMEM;
+    printk(KERN_INFO "snull_init_module\n");
 
     snull_interrupt = use_napi ? snull_napi_interrupt : snull_regular_interrupt;
 
@@ -762,6 +773,7 @@ int snull_init_module(void)
    out:
     if (ret)
         snull_cleanup();
+    printk(KERN_INFO "snull_init_module finish\n");
     return ret;
 }
 
