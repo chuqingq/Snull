@@ -468,7 +468,7 @@ static void snull_hw_tx(char *buf, int len, struct net_device *dev)
     }
 
     if (1) { /* enable this conditional to look at the data */
-        int i;
+        // int i;
         printk(KERN_DEBUG "len is %i\n", len);
         // for (i=14 ; i<len; i++)
             // printk(" %02x",buf[i]&0xff);
