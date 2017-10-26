@@ -1,5 +1,10 @@
 # usage
 
+## 0. env
+
+    $ uname -a
+    Linux chuqq-hp 4.4.0-21-generic #37-Ubuntu SMP Mon Apr 18 18:33:37 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+
 ## 1. get idle ips
 
     ping 192.168.8.8 # failed
